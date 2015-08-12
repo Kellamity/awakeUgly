@@ -21,20 +21,15 @@ namespace ConsoleApplication1
                 path = "c:\\Program Files\\Spotify\\";
                 timer = 30;
             }
-            //if no custom filename passed, default to Spotity.exe
-            if (args != null)
-            {
-                fileName = args[0];                                
-            }
             else
             {
-                fileName = "Spotify.exe";
+                fileName = args[0];
+                path = args[1];
+                timer = args[2];                
             }
-            application.StartInfo.FileName = fileName;
+            application.StartInfo.FileName = path + fileName;
             application.StartInfo.Arguments = "-v -s -a";
-            Process.Start("powercfg", "-CHANGE -standby-timeout-ac 0");        
-            Process.Start("powercfg", "-CHANGE -hibernate-timeout-ac 0");
-            Process.Start("powercfg", "-CHANGE -monitor-timeout-ac 0"); 
+            setProcess(0);  //disable Windows power settings
             try
             {
                 application.Start();   
@@ -42,13 +37,19 @@ namespace ConsoleApplication1
             catch
             {
                 Console.Writeline("Process not found");
+                setProcess(timer);  //reset Windows power settings if application not launched
             }          
             application.WaitForExit();
             var exitCode = application.ExitCode;
             application.Close();
-            Process.Start("powercfg", "-CHANGE -standby-timeout-ac 30");        
-            Process.Start("powercfg", "-CHANGE -hibernate-timeout-ac 30");
-            Process.Start("powercfg", "-CHANGE -monitor-timeout-ac 30"); 
+            setProcess(timer); 
         }
+    }
+    
+    void setProcess(int timer)
+    {
+            Process.Start("powercfg", "-CHANGE -standby-timeout-ac " + timer);        
+            Process.Start("powercfg", "-CHANGE -hibernate-timeout-ac " + timer));
+            Process.Start("powercfg", "-CHANGE -monitor-timeout-ac " + timer)); 
     }
 }
